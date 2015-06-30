@@ -1,0 +1,21 @@
+{
+  "name": "minimap-codeglance",
+  "main": "./lib/minimap-codeglance",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "repository": "https://github.com/atom/minimap-codeglance",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "consumedServices": {
+    "minimap": {
+      "versions": {
+        "1.0.0": "consumeMinimapServiceV1"
+      }
+    }
+  },
+  "dependencies": {
+    "event-kit": ">= 0.7.2"
+  }
+}
