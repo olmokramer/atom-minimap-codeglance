@@ -51,8 +51,6 @@ module.exports =
         else
           @panel.hide()
 
-        # draw something at y
-
       minimapElement.addEventListener 'mouseleave', =>
         @panel.hide()
 
