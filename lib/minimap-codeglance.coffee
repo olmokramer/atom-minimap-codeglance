@@ -1,4 +1,6 @@
+'use strict'
 {CompositeDisposable} = require 'event-kit'
+CodeglanceView = require './codeglance-view'
 
 module.exports =
   active: false
@@ -6,22 +8,28 @@ module.exports =
   isActive: -> @active
 
   activate: (state) ->
-    @subscriptions = new CompositeDisposable
+    @subscriptions = new CompositeDisposable()
+    @codeglanceView = new CodeglanceView()
+    @panel = atom.workspace.addBottomPanel @codeglanceView
 
   consumeMinimapServiceV1: (@minimap) ->
-    @minimap.registerPlugin 'minimap-codeglance', this
+    @minimap.registerPlugin 'codeglance', this
 
   deactivate: ->
-    @minimap.unregisterPlugin 'minimap-codeglance'
-    @minimap = null
+    @minimap.unregisterPlugin 'codeglance'
+    @codeglanceView.destroy()
+    @panel.destroy()
+    [@minimap, @codeglanceView, @panel] = []
 
   activatePlugin: ->
     return if @active
-
     @active = true
 
     @minimapsSubscription = @minimap.observeMinimaps (minimap) =>
       minimapElement = atom.views.getView(minimap)
+
+      minimapElement.addEventListener 'mouseenter', =>
+        @codeglanceView.setGrammar minimap.textEditor.getGrammar()
 
       minimapElement.addEventListener 'mousemove', (event) =>
         # console.log event
@@ -33,13 +41,20 @@ module.exports =
         firstVisibleLine = minimap.getFirstVisibleScreenRow()
         cursorLine = firstVisibleLine + lineOffset
 
-        textEditor = atom.workspace.getActiveTextEditor()
-        text = textEditor.getTextInBufferRange [[cursorLine - 1, 0], [cursorLine + 2, 0]]
+        nLines = atom.config.get 'minimap-codeglance.numberOfLines'
+        textRange = [[cursorLine - Math.floor(nLines / 2), 0], [cursorLine + Math.ceil(nLines / 2), 0]]
+        text = minimap.textEditor.getTextInBufferRange(textRange).slice(0, -1)
 
-        console.log text
+        if text
+          @codeglanceView.setText text
+          @panel.show()
+        else
+          @panel.hide()
 
         # draw something at y
 
+      minimapElement.addEventListener 'mouseleave', =>
+        @panel.hide()
 
   deactivatePlugin: ->
     return unless @active
@@ -47,3 +62,9 @@ module.exports =
     @active = false
     @minimapsSubscription.dispose()
     @subscriptions.dispose()
+
+  config:
+    numberOfLines:
+      type: 'integer'
+      default: 3
+      minimum: 1

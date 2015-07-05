@@ -2,4 +2,16 @@
 //
 // See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
 // for a full listing of what's available.
+@component-padding: 8px;
+
 @import "ui-variables";
+
+.minimap-codeglance {
+  atom-text-editor {
+    margin: @component-padding / 2 0;
+
+    &::shadow .cursor {
+      display: none!important;
+    }
+  }
+}
