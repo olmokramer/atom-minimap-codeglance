@@ -18,6 +18,7 @@ class CodeglanceView
     @editor.setText text
 
   destroy: ->
+    @editor.destroy()
     [@item, @editor] = []
 
 module.exports = CodeglanceView
