@@ -7,13 +7,15 @@ class CodeglanceView
     @editor = editorView.getModel()
     gutter.hide() for gutter in @editor.getGutters()
 
+  visible: false
+
+  priority: 1000
+
   setGrammar: (grammar) ->
     @editor.setGrammar grammar
 
   setText: (text) ->
     @editor.setText text
-
-  visible: false
 
   destroy: ->
     [@item, @editor] = []
