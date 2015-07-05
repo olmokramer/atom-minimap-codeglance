@@ -1,5 +1,5 @@
 # minimap-codeglance package
 
-A short description of your package.
+Codeglance as a [minimap](https://atom.io/packages/minimap) plugin Atom. Shows the code that's under the mouse cursor when hovering the minimap.
 
-![A screenshot of your spankin' package](https://f.cloud.github.com/assets/69169/2290250/c35d867a-a017-11e3-86be-cd7c5bf3ff9b.gif)
+![Minimap codeglance](https://raw.githubusercontent.com/olmokramer/atom-minimap-codeglance/master/screencast.gif)
