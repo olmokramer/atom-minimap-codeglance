@@ -3,7 +3,7 @@
   "main": "./lib/minimap-codeglance",
   "version": "0.0.0",
   "description": "Codeglance like functionality for Atom",
-  "repository": "https://github.com/olmokramer/minimap-codeglance",
+  "repository": "https://github.com/olmokramer/atom-minimap-codeglance",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
