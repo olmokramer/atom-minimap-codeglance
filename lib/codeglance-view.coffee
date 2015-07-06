@@ -5,11 +5,14 @@ class CodeglanceView
     @item.classList.add 'minimap-codeglance'
     @item.appendChild editorView = document.createElement 'atom-text-editor'
     @editor = editorView.getModel()
-    gutter.hide() for gutter in @editor.getGutters()
+    @hideGutters()
 
   visible: false
 
   priority: 1000
+
+  hideGutters: ->
+    gutter.hide() for gutter in @editor.getGutters()
 
   setGrammar: (grammar) ->
     @editor.setGrammar grammar
