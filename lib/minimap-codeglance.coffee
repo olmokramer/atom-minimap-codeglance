@@ -6,7 +6,7 @@ module.exports =
   config:
     numberOfLines:
       type: 'integer'
-      default: 3
+      default: 6
       minimum: 1
     panelLocation:
       type: 'string'
