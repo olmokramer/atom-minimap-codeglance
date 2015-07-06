@@ -12,6 +12,9 @@ module.exports =
       type: 'string'
       default: 'bottom'
       enum: [ 'bottom', 'modal' ]
+    useSyntaxTheme:
+      type: 'boolean'
+      default: true
 
   activate: ->
 
@@ -39,7 +42,10 @@ module.exports =
     minimapElement = atom.views.getView minimap
 
     minimapElement.addEventListener 'mouseenter', mouseenter = =>
-      @codeglanceView.setGrammar minimap.getTextEditor().getGrammar()
+      @codeglanceView.setGrammar if atom.config.get 'minimap-codeglance.useSyntaxTheme'
+        minimap.getTextEditor().getGrammar()
+      else
+        atom.grammars.grammarForScopeName 'text.plain.null-grammar'
 
     minimapElement.addEventListener 'mousemove', mousemove = (event) =>
       # get the offset in lines
