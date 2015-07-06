@@ -1,3 +1,6 @@
+## 0.0.5
+* Add line wrapping support
+
 ## 0.0.4
 * Add `useSyntaxTheme` setting
 
