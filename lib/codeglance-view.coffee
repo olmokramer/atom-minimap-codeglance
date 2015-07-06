@@ -15,7 +15,8 @@ class CodeglanceView
     gutter.hide() for gutter in @editor.getGutters()
 
   setGrammar: (grammar) ->
-    @editor.setGrammar grammar
+    if grammar isnt @editor.getGrammar()
+      @editor.setGrammar grammar
 
   setText: (text) ->
     @editor.setText text
