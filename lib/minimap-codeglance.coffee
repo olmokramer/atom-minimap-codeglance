@@ -48,6 +48,8 @@ module.exports =
         atom.grammars.grammarForScopeName 'text.plain.null-grammar'
 
     minimapElement.addEventListener 'mousemove', mousemove = (event) =>
+      textEditor = minimap.getTextEditor()
+
       # get the offset in lines
       offsetY = event.offsetY
       lineHeight = minimap.charHeight + minimap.interline
@@ -59,16 +61,20 @@ module.exports =
 
       # select nLines / 2 lines before and after the cursorLine
       nLines = atom.config.get 'minimap-codeglance.numberOfLines'
+      firstLine = cursorLine - Math.floor(nLines / 2)
+      lastLine = cursorLine + Math.ceil(nLines / 2)
+
+      if firstLine > textEditor.getLastScreenRow()
+        @panel.hide()
+        return
+
       lines = []
-      for line in [cursorLine - Math.floor(nLines / 2)...cursorLine + Math.ceil(nLines / 2)]
-        lines.push minimap.getTextEditor().lineTextForScreenRow(line) ? ''
+      for line in [firstLine...lastLine]
+        lines.push textEditor.lineTextForScreenRow(line) ? ''
       text = lines.join '\n'
 
-      if text.match /^\s*$/
-        @panel.hide()
-      else
-        @codeglanceView.setText text
-        @panel.show()
+      @codeglanceView.setText text
+      @panel.show()
 
     minimapElement.addEventListener 'mouseleave', mouseleave = =>
       @panel.hide()
@@ -96,6 +102,6 @@ module.exports =
       else atom.workspace.addBottomPanel @codeglanceView
 
     @disposables.add new Disposable =>
-      @codeglanceView.destroy()
+      @codeglanceView?.destroy()
       @panel?.destroy()
       [@panel, @codeglanceView] = []
