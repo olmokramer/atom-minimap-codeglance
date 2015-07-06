@@ -3,18 +3,22 @@ class CodeglanceView
   constructor: ->
     @item = document.createElement 'div'
     @item.classList.add 'minimap-codeglance'
-    @item.appendChild editorView = document.createElement 'atom-text-editor'
-    @editor = editorView.getModel()
+    @editorView = document.createElement 'atom-text-editor'
+    @editor = @editorView.getModel()
+    @editor.setSoftWrapped false
+    @item.appendChild @editorView
 
   visible: false
 
   priority: 1000
 
-  showGutters: ->
+  showGutter: ->
     gutter.show() for gutter in @editor.getGutters()
+    @editorView.classList.remove 'hide-gutter'
 
-  hideGutters: ->
+  hideGutter: ->
     gutter.hide() for gutter in @editor.getGutters()
+    @editorView.classList.add 'hide-gutter'
 
   setGrammar: (grammar) ->
     unless atom.config.get 'minimap-codeglance.useSyntaxTheme'
@@ -35,15 +39,21 @@ class CodeglanceView
     cursorLine = firstVisibleLine + lineOffset
     return false if cursorLine > @editor.getLastScreenRow()
 
-    @editor.scrollToScreenPosition [cursorLine, 0], center: true
+    nLines = atom.config.get 'minimap-codeglance.numberOfLines'
+    firstLine = Math.max 0, cursorLine + 1 - Math.ceil nLines / 2
+    @editor.setCursorScreenPosition [cursorLine, 0]
+    @editor.displayBuffer.setScrollTop firstLine * @editor.getLineHeightInPixels()
     return true
 
   resetEditorHeight: ->
     nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-    @item.style.height = nLines * @editor.getLineHeightInPixels() + 'px'
+    lineHeight = @editor.getLineHeightInPixels() or atom.workspace.getActiveTextEditor().getLineHeightInPixels()
+    height = nLines * lineHeight
+    @item.style.height = height + 'px'
+    @editor.displayBuffer.setHeight height
 
   destroy: ->
     @editor.destroy()
-    [@item, @editor] = []
+    [@item, @editor, @editorView] = []
 
 module.exports = CodeglanceView

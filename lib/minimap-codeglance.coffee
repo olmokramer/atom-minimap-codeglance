@@ -41,7 +41,7 @@ module.exports =
     @disposables.add atom.config.observe 'minimap-codeglance.panelLocation', =>
       @createViews()
     @disposables.add atom.config.observe 'minimap-codeglance.showGutter', (showGutter) =>
-      if showGutter then @codeglanceView.showGutters() else @codeglanceView.hideGutters()
+      if showGutter then @codeglanceView.showGutter() else @codeglanceView.hideGutter()
     @disposables.add @minimap.observeMinimaps (minimap) =>
       @setupEvents minimap
 

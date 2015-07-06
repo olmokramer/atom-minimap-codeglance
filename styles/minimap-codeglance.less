@@ -1,7 +1,3 @@
-// The ui-variables file is provided by base themes provided by Atom.
-//
-// See https://github.com/atom/atom-dark-ui/blob/master/stylesheets/ui-variables.less
-// for a full listing of what's available.
 @component-padding: 8px;
 
 @import "ui-variables";
@@ -14,13 +10,17 @@
   atom-text-editor {
     height: 100%;
 
+    &.hide-gutter {
+      padding-left: @component-padding;
+    }
+
     &::shadow {
       .cursor {
-        display: none!important;
+        display: none;
       }
 
-      .cursor-line {
-        background-color: transparent!important;
+      ::-webkit-scrollbar {
+        display: none;
       }
     }
   }
