@@ -8,10 +8,11 @@
 
 .minimap-codeglance {
   overflow: hidden;
+  padding-top: @component-padding / 2;
+  box-sizing: content-box;
 
   atom-text-editor {
-    max-height: 100%;
-    margin-top: @component-padding / 2;
+    height: 100%;
 
     &::shadow {
       .cursor {
