@@ -7,7 +7,10 @@
 @import "ui-variables";
 
 .minimap-codeglance {
+  overflow: hidden;
+
   atom-text-editor {
+    max-height: 100%;
     margin-top: @component-padding / 2;
 
     &::shadow {

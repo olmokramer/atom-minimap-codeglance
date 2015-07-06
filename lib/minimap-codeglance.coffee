@@ -15,6 +15,9 @@ module.exports =
     useSyntaxTheme:
       type: 'boolean'
       default: true
+    showGutter:
+      type: 'boolean'
+      default: true
 
   activate: ->
 
@@ -35,46 +38,27 @@ module.exports =
     @active = true
 
     @disposables = new CompositeDisposable()
-    @disposables.add atom.config.observe 'minimap-codeglance.panelLocation', => @createViews()
-    @disposables.add @minimap.observeMinimaps (minimap) => @setupEvents minimap
+    @disposables.add atom.config.observe 'minimap-codeglance.panelLocation', =>
+      @createViews()
+    @disposables.add atom.config.observe 'minimap-codeglance.showGutter', (showGutter) =>
+      if showGutter then @codeglanceView.showGutters() else @codeglanceView.hideGutters()
+    @disposables.add @minimap.observeMinimaps (minimap) =>
+      @setupEvents minimap
 
   setupEvents: (minimap) ->
     minimapElement = atom.views.getView minimap
 
     minimapElement.addEventListener 'mouseenter', mouseenter = =>
-      @codeglanceView.setGrammar if atom.config.get 'minimap-codeglance.useSyntaxTheme'
-        minimap.getTextEditor().getGrammar()
-      else
-        atom.grammars.grammarForScopeName 'text.plain.null-grammar'
-
-    minimapElement.addEventListener 'mousemove', mousemove = (event) =>
-      textEditor = minimap.getTextEditor()
-
-      # get the offset in lines
-      offsetY = event.offsetY
-      lineHeight = minimap.charHeight + minimap.interline
-      lineOffset = Math.floor offsetY / lineHeight
-
-      # get line at mouse cursor
-      firstVisibleLine = minimap.getFirstVisibleScreenRow()
-      cursorLine = firstVisibleLine + lineOffset
-
-      # select nLines / 2 lines before and after the cursorLine
-      nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-      firstLine = cursorLine - Math.floor(nLines / 2)
-      lastLine = cursorLine + Math.ceil(nLines / 2)
-
-      if firstLine > textEditor.getLastScreenRow()
-        @panel.hide()
-        return
-
-      lines = []
-      for line in [firstLine...lastLine]
-        lines.push textEditor.lineTextForScreenRow(line) ? ''
-      text = lines.join '\n'
-
-      @codeglanceView.setText text
       @panel.show()
+      @codeglanceView.resetEditorHeight()
+      @codeglanceView.setGrammar minimap.getTextEditor().getGrammar()
+      @codeglanceView.setText minimap.getTextEditor().getText()
+
+    minimapElement.addEventListener 'mousemove', mousemove = ({offsetY}) =>
+      if @codeglanceView.showLinesAtOffset offsetY, minimap
+        @panel.show()
+      else
+        @panel.hide()
 
     minimapElement.addEventListener 'mouseleave', mouseleave = =>
       @panel.hide()
@@ -83,7 +67,7 @@ module.exports =
       minimapElement.removeEventListener 'mouseenter', mouseenter
       minimapElement.removeEventListener 'mousemove', mousemove
       minimapElement.removeEventListener 'mouseleave', mouseleave
-      minimapElement = null
+      [minimap, minimapElement] = null
 
     @disposables.add minimap.onDidDestroy ->
       disposable.dispose()
