@@ -59,15 +59,16 @@ module.exports =
 
       # select nLines / 2 lines before and after the cursorLine
       nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-      textRange = [[cursorLine - Math.floor(nLines / 2), 0], [cursorLine + Math.ceil(nLines / 2), 0]]
-      # slice because we have a \n at the end we don't want
-      text = minimap.getTextEditor().getTextInBufferRange(textRange).slice(0, -1)
+      lines = []
+      for line in [cursorLine - Math.floor(nLines / 2)...cursorLine + Math.ceil(nLines / 2)]
+        lines.push minimap.getTextEditor().lineTextForScreenRow(line) ? ''
+      text = lines.join '\n'
 
-      if text
+      if text.match /^\s*$/
+        @panel.hide()
+      else
         @codeglanceView.setText text
         @panel.show()
-      else
-        @panel.hide()
 
     minimapElement.addEventListener 'mouseleave', mouseleave = =>
       @panel.hide()
