@@ -1,4 +1,5 @@
 ## 0.0.3
+* Add modal panel
 * Fix some activation/deactivation issues
 
 ## 0.0.2
