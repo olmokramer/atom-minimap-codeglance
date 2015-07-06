@@ -10,8 +10,14 @@
   atom-text-editor {
     margin: @component-padding / 2 0;
 
-    &::shadow .cursor {
-      display: none!important;
+    &::shadow {
+      .cursor {
+        display: none!important;
+      }
+
+      .cursor-line {
+        background-color: transparent!important;
+      }
     }
   }
 }
