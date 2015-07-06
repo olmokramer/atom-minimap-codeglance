@@ -67,7 +67,7 @@ module.exports =
       minimapElement.removeEventListener 'mouseenter', mouseenter
       minimapElement.removeEventListener 'mousemove', mousemove
       minimapElement.removeEventListener 'mouseleave', mouseleave
-      [minimap, minimapElement] = null
+      [minimap, minimapElement] = []
 
     @disposables.add minimap.onDidDestroy ->
       disposable.dispose()
