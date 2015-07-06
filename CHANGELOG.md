@@ -1,3 +1,6 @@
+## 0.0.4
+* Add `useSyntaxTheme` setting
+
 ## 0.0.3
 * Add modal panel
 * Fix some activation/deactivation issues
