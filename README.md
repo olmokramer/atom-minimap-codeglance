@@ -9,3 +9,4 @@ Codeglance for Atom as a [minimap](https://atom.io/packages/minimap) plugin. Sho
 - [ ] Add option to show the preview at the mouse position instead of at the bottom
 - [ ] Change syntax theme in the preview (if possible)
 - [ ] Show line numbers
+- [ ] Padding on the editor
