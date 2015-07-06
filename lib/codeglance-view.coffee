@@ -1,59 +1,126 @@
 'use strict'
-class CodeglanceView
-  constructor: ->
-    @item = document.createElement 'div'
-    @item.classList.add 'minimap-codeglance'
+class CodeglanceView extends HTMLElement
+  createdCallback: ->
     @editorView = document.createElement 'atom-text-editor'
     @editor = @editorView.getModel()
-    @editor.setSoftWrapped false
-    @item.appendChild @editorView
+    # @editor.setSoftWrapped false
+    @appendChild @editorView
 
-  visible: false
+  attach: ->
+    textEditorView = atom.views.getView @minimap.getTextEditor()
+    textEditorView.shadowRoot.appendChild this
 
-  priority: 1000
+  detach: ->
+    @parentNode?.removeChild this
 
-  showGutter: ->
-    gutter.show() for gutter in @editor.getGutters()
-    @editorView.classList.remove 'hide-gutter'
+  recalculateWidth: ->
+    minimapView = atom.views.getView @minimap
+    @style.width = "calc(100% - #{getComputedStyle(minimapView).width})"
 
-  hideGutter: ->
-    gutter.hide() for gutter in @editor.getGutters()
-    @editorView.classList.add 'hide-gutter'
-
-  setGrammar: (grammar) ->
-    unless atom.config.get 'minimap-codeglance.useSyntaxTheme'
-      grammar = atom.grammars.grammarForScopeName 'text.plain.null-grammar'
+  resetGrammar: ->
+    grammar = switch atom.config.get 'minimap-codeglance.useSyntaxTheme'
+      when true then @minimap.getTextEditor().getGrammar()
+      when false then atom.grammars.grammarForScopeName 'text.plain.null-grammar'
     if grammar isnt @editor.getGrammar()
       @editor.setGrammar grammar
 
-  setText: (text) ->
-    @editor.setText text
+  resetText: ->
+    @editor.setText @minimap.getTextEditor().getText()
 
-  showLinesAtOffset: (offset, minimap) ->
-    # offset in lines
-    lineHeight = minimap.charHeight + minimap.interline
-    lineOffset = Math.floor offset / lineHeight
+  show: (parentTextEditor) ->
+    @style.display = 'block'
 
-    # line under the mouse cursor
-    firstVisibleLine = minimap.getFirstVisibleScreenRow()
-    cursorLine = firstVisibleLine + lineOffset
-    return false if cursorLine > @editor.getLastScreenRow()
+  hide: ->
+    @style.display = 'none'
+    @style.transform = ''
 
+  setHeight: (nLines) ->
+    @style.height = nLines * @getLineHeight() + 'px'
+
+  getLineHeight: ->
+    lineHeight = @editor.getLineHeightInPixels() or
+      @minimap?.getTextEditor().getLineHeightInPixels()
+    return lineHeight if lineHeight
+    for textEditor in atom.workspace.getTextEditors()
+      lineHeight = textEditor.getLineHeightInPixels()
+      return lineHeight if lineHeight
+    atom.config.get('editor.fontSize') * atom.config.get('editor.lineHeight')
+
+  fixDisplayBufferHeight: ->
+    # The height of the displayBuffer is much larger than
+    # the editor's actual height when the editor's height
+    # changes, which causes the programmatical scrolling to
+    # fail. Resetting the height of the bufferseems to fix
+    # this.
+    displayBufferHeight = atom.config.get('minimap-codeglance.numberOfLines') * @getLineHeight()
+    @editor.displayBuffer.setHeight displayBufferHeight
+
+  setPosition: (@position) ->
+    @setAttribute 'data-position', @position
+
+  setMinimapPosition: (position) ->
+    @setAttribute 'data-minimap-position', position
+
+  showGutter: ->
+    @setAttribute 'data-show-gutter', ''
+    gutter.show() for gutter in @editor.getGutters()
+
+  hideGutter: ->
+    @removeAttribute 'data-show-gutter'
+    gutter.hide() for gutter in @editor.getGutters()
+
+  setMinimap: (@minimap) ->
+    @resetGrammar()
+    @resetText()
+    @attach()
+    @recalculateWidth()
+
+  showLinesAtOffset: (offset) ->
+    @fixDisplayBufferHeight()
+    offsetInLines = @pixelsToLines offset
+    cursorLine = @getCursorLine offsetInLines
+    return @hide() unless cursorLine
+
+    @highlightLine cursorLine
+    @alignVertically offset
+
+  pixelsToLines: (px) ->
+    lineHeight = @minimap.charHeight + @minimap.interline
+    Math.floor px / lineHeight
+
+  getCursorLine: (offsetInLines) ->
+    firstVisibleLine = @minimap.getFirstVisibleScreenRow()
+    cursorLine = firstVisibleLine + offsetInLines
+    return false if cursorLine > @minimap.getTextEditor().getLastScreenRow()
+    cursorLine = @minimap.getTextEditor().bufferPositionForScreenPosition([cursorLine, 0]).row
+    @editor.screenPositionForBufferPosition([cursorLine, 0]).row
+
+  highlightLine: (line) ->
     nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-    firstLine = Math.max 0, cursorLine + 1 - Math.ceil nLines / 2
-    @editor.setCursorScreenPosition [cursorLine, 0]
+    firstLine = Math.max 0, line - Math.floor nLines / 2
+    @editor.setCursorScreenPosition [line, 0]
     @editor.displayBuffer.setScrollTop firstLine * @editor.getLineHeightInPixels()
-    return true
+    @show()
 
-  resetEditorHeight: ->
-    nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-    lineHeight = @editor.getLineHeightInPixels() or atom.workspace.getActiveTextEditor().getLineHeightInPixels()
-    height = nLines * lineHeight
-    @item.style.height = height + 'px'
-    @editor.displayBuffer.setHeight height
+  alignVertically: (offset) ->
+    return if @position isnt 'cursor'
+    translateY = offset - @clientHeight / 2
+    translateY = Math.max @getMinTranslateY(), translateY
+    translateY = Math.min @getMaxTranslateY(), translateY
+    requestAnimationFrame =>
+      @style.transform = "translateY(#{translateY}px)"
+
+  getMinTranslateY: ->
+    -parseInt getComputedStyle(this).borderTopWidth
+
+  getMaxTranslateY: ->
+    borderBottom = parseInt getComputedStyle(this).borderBottomWidth
+    @parentNode.host.clientHeight - @clientHeight + borderBottom
 
   destroy: ->
+    @detach()
     @editor.destroy()
-    [@item, @editor, @editorView] = []
+    [@editor, @editorView, @minimap] = []
 
-module.exports = CodeglanceView
+module.exports = document.registerElement 'minimap-codeglance',
+  prototype: CodeglanceView.prototype

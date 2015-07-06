@@ -1,0 +1,47 @@
+@import "ui-variables";
+
+minimap-codeglance {
+  position: absolute;
+  overflow: hidden;
+  box-sizing: content-box;
+  border-color: @tool-panel-background-color;
+  border-style: solid;
+  border-width: 2px 0;
+  border-radius: @component-border-radius;
+
+  &[data-minimap-position="left"] {
+    right: 0;
+  }
+
+  &[data-minimap-position="right"] {
+    left: 0;
+  }
+
+  &[data-position="top"] {
+    top: 0;
+    border-top-width: 0;
+  }
+
+  &[data-position="cursor"] {
+    top: 0;
+  }
+
+  &[data-position="bottom"] {
+    bottom: 0;
+    border-bottom-width: 0;
+  }
+
+  &[show-gutter] atom-text-editor {
+    padding-left: @component-padding;
+  }
+
+  atom-text-editor::shadow {
+    .cursor {
+      display: none;
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}

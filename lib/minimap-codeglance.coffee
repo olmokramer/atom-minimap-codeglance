@@ -2,16 +2,20 @@
 {Disposable, CompositeDisposable} = require 'event-kit'
 CodeglanceView = require './codeglance-view'
 
+addEventListener = (el, event, cb) ->
+  el.addEventListener event, cb
+  new Disposable -> el.removeEventListener event, cb
+
 module.exports =
   config:
     numberOfLines:
       type: 'integer'
       default: 6
       minimum: 1
-    panelLocation:
+    codeglancePosition:
       type: 'string'
-      default: 'bottom'
-      enum: [ 'bottom', 'modal' ]
+      default: 'cursor'
+      enum: [ 'bottom', 'cursor', 'top' ]
     useSyntaxTheme:
       type: 'boolean'
       default: true
@@ -38,39 +42,40 @@ module.exports =
     @active = true
 
     @disposables = new CompositeDisposable()
-    @disposables.add atom.config.observe 'minimap-codeglance.panelLocation', =>
-      @createViews()
-    @disposables.add atom.config.observe 'minimap-codeglance.showGutter', (showGutter) =>
-      if showGutter then @codeglanceView.showGutter() else @codeglanceView.hideGutter()
+    @createView()
+
     @disposables.add @minimap.observeMinimaps (minimap) =>
       @setupEvents minimap
 
+    @disposables.add atom.config.observe 'minimap-codeglance.numberOfLines', (nLines) =>
+      @codeglanceView.setHeight nLines
+
+    @disposables.add atom.config.observe 'minimap-codeglance.codeglancePosition', (position) =>
+      @codeglanceView.setPosition position
+
+    @disposables.add atom.config.observe 'minimap-codeglance.showGutter', (showGutter) =>
+      if showGutter then @codeglanceView.showGutter() else @codeglanceView.hideGutter()
+
+    @disposables.add atom.config.observe 'minimap.displayMinimapOnLeft', (showOnLeft) =>
+      @codeglanceView.setMinimapPosition if showOnLeft then 'left' else 'right'
+
   setupEvents: (minimap) ->
-    minimapElement = atom.views.getView minimap
+    minimapView = atom.views.getView minimap
+    @disposables.add disposable = new CompositeDisposable()
 
-    minimapElement.addEventListener 'mouseenter', mouseenter = =>
-      @panel.show()
-      @codeglanceView.resetEditorHeight()
-      @codeglanceView.setGrammar minimap.getTextEditor().getGrammar()
-      @codeglanceView.setText minimap.getTextEditor().getText()
+    disposable.add addEventListener minimapView, 'mouseenter', =>
+      @codeglanceView.setMinimap minimap
 
-    minimapElement.addEventListener 'mousemove', mousemove = ({offsetY}) =>
-      if @codeglanceView.showLinesAtOffset offsetY, minimap
-        @panel.show()
-      else
-        @panel.hide()
+    disposable.add addEventListener minimapView, 'mousemove', ({offsetY}) =>
+      @codeglanceView.showLinesAtOffset offsetY
 
-    minimapElement.addEventListener 'mouseleave', mouseleave = =>
-      @panel.hide()
+    disposable.add addEventListener minimapView, 'mouseleave', =>
+      @codeglanceView.hide()
 
-    @disposables.add disposable = new Disposable ->
-      minimapElement.removeEventListener 'mouseenter', mouseenter
-      minimapElement.removeEventListener 'mousemove', mousemove
-      minimapElement.removeEventListener 'mouseleave', mouseleave
-      [minimap, minimapElement] = []
-
-    @disposables.add minimap.onDidDestroy ->
+    @disposables.add minimap.onDidDestroy =>
+      @disposables.remove disposable
       disposable.dispose()
+      disposable = null
 
   deactivatePlugin: ->
     return unless @active
@@ -78,14 +83,9 @@ module.exports =
 
     @disposables.dispose()
 
-  createViews: ->
+  createView: ->
     @codeglanceView ?= new CodeglanceView()
-    @panel?.destroy()
-    @panel = switch atom.config.get 'minimap-codeglance.panelLocation'
-      when 'modal' then atom.workspace.addModalPanel @codeglanceView
-      else atom.workspace.addBottomPanel @codeglanceView
 
     @disposables.add new Disposable =>
       @codeglanceView?.destroy()
-      @panel?.destroy()
-      [@panel, @codeglanceView] = []
+      @codeglanceView = null
