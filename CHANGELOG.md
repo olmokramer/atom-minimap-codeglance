@@ -1,3 +1,6 @@
+## 0.0.6
+* Fix issue when file contains lots of successive newlines
+
 ## 0.0.5
 * Add line wrapping support
 
