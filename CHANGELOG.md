@@ -1,3 +1,9 @@
+# 0.1.5
+* Fix issue where codeglance would sometimes show only the first lines of the editor
+* Always hide non-line-number gutters
+* Rename setting `showGutter` to `showLineNumbers`
+* Rename setting `useSyntaxTheme` to `highlightCode`
+
 ## 0.1.4
 * Fix crash
 
