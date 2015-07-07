@@ -69,8 +69,8 @@ module.exports =
     disposable.add addEventListener minimapView, 'mouseenter', =>
       @codeglanceView.setMinimap minimap
 
-    disposable.add addEventListener minimapView, 'mousemove', ({offsetY}) =>
-      @codeglanceView.showLinesAtOffset offsetY unless isDragging
+    disposable.add addEventListener minimapView, 'mousemove', ({offsetX: x, offsetY: y}) =>
+      @codeglanceView.showLinesAtOffset {x, y} unless isDragging
 
     disposable.add addEventListener minimapView, 'mouseleave', =>
       @codeglanceView.hide()

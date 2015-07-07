@@ -60,28 +60,31 @@ class CodeglanceView extends HTMLElement
 
   showLinesAtOffset: (offsetInPixels) ->
     @resize() if @clientHeight is 0
-    offsetInRows = @pixelsToRows offsetInPixels
-    sourceScreenRow = @sourceScreenRowForOffset offsetInRows
-    ownScreenRow = @ownScreenRowForSourceScreenRow sourceScreenRow
-    @scrollToScreenRow ownScreenRow
-    @alignWithCursor offsetInPixels
+    minimapPosition = @offsetToMinimapPosition offsetInPixels
+    sourceScreenPosition = @sourceScreenRowForMinimapPosition minimapPosition
+    ownScreenPosition = @ownScreenPositionForSourceScreenPosition sourceScreenPosition
+    @scrollToScreenPosition ownScreenPosition
+    @alignWithCursor offsetInPixels.y
 
-  pixelsToRows: (px) ->
+  offsetToMinimapPosition: (offsetInPixels) ->
+    columnWidth = @minimap.charWidth
     lineHeight = @minimap.charHeight + @minimap.interline
-    Math.floor px / lineHeight
+    column: Math.floor offsetInPixels.x / columnWidth
+    row: Math.floor offsetInPixels.y / lineHeight
 
-  sourceScreenRowForOffset: (offsetInRows) ->
+  sourceScreenRowForMinimapPosition: (minimapPosition) ->
     firstVisibleScreenRow = @minimap.getFirstVisibleScreenRow()
-    sourceScreenRow = firstVisibleScreenRow + offsetInRows
+    column: minimapPosition.column
+    row: minimapPosition.row + firstVisibleScreenRow
 
-  ownScreenRowForSourceScreenRow: (sourceScreenRow) ->
-    return -1 if sourceScreenRow > @minimap.getTextEditor().getLastScreenRow()
-    bufferRow = @minimap.getTextEditor().bufferPositionForScreenPosition([sourceScreenRow, 0]).row
-    @editor.screenPositionForBufferPosition([bufferRow, 0]).row
+  ownScreenPositionForSourceScreenPosition: (sourceScreenPosition) ->
+    return null if sourceScreenPosition.row > @minimap.getTextEditor().getLastScreenRow()
+    bufferPosition = @minimap.getTextEditor().bufferPositionForScreenPosition sourceScreenPosition
+    @editor.screenPositionForBufferPosition bufferPosition
 
-  scrollToScreenRow: (screenRow) ->
-    return @hide() if screenRow is -1
-    @editor.setCursorScreenPosition [screenRow, 0]
+  scrollToScreenPosition: (screenPosition) ->
+    return @hide() unless screenPosition?.row
+    @editor.setCursorScreenPosition screenPosition
     @show()
 
   alignWithCursor: (cursorOffsetInPixels) ->
