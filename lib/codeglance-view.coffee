@@ -18,10 +18,8 @@ class CodeglanceView extends HTMLElement
     @style.width = "calc(100% - #{getComputedStyle(minimapView).width})"
 
     nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-    @style.height = nLines * @getLineHeight() + 'px'
-
-  getLineHeight: ->
-    @editor.getLineHeightInPixels()
+    lineHeight = @editor.getLineHeightInPixels()
+    @style.height = nLines * lineHeight + 'px'
 
   resetGrammar: ->
     @editor.setGrammar switch atom.config.get 'minimap-codeglance.highlightCode'
