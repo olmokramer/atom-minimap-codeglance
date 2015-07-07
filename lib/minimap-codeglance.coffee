@@ -8,20 +8,24 @@ addEventListener = (el, event, cb) ->
 
 module.exports =
   config:
-    numberOfLines:
-      type: 'integer'
-      default: 6
-      minimum: 1
     codeglancePosition:
       type: 'string'
       default: 'cursor'
       enum: [ 'bottom', 'cursor', 'top' ]
-    useSyntaxTheme:
+      order: 0
+    numberOfLines:
+      type: 'integer'
+      default: 6
+      minimum: 1
+      order: 1
+    showLineNumbers:
       type: 'boolean'
       default: true
-    showGutter:
+      order: 2
+    highlightCode:
       type: 'boolean'
       default: true
+      order: 3
 
   activate: ->
 
@@ -50,8 +54,8 @@ module.exports =
     @disposables.add atom.config.observe 'minimap-codeglance.codeglancePosition', (position) =>
       @codeglanceView.setPosition position
 
-    @disposables.add atom.config.observe 'minimap-codeglance.showGutter', (showGutter) =>
-      if showGutter then @codeglanceView.showGutter() else @codeglanceView.hideGutter()
+    @disposables.add atom.config.observe 'minimap-codeglance.showLineNumbers', (showLineNumbers) =>
+      if showLineNumbers then @codeglanceView.showLineNumbers() else @codeglanceView.hideLineNumbers()
 
     @disposables.add atom.config.observe 'minimap.displayMinimapOnLeft', (showOnLeft) =>
       @codeglanceView.setMinimapPosition if showOnLeft then 'left' else 'right'

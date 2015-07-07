@@ -4,6 +4,7 @@ class CodeglanceView extends HTMLElement
     @editorView = document.createElement 'atom-text-editor'
     @editor = @editorView.getModel()
     @appendChild @editorView
+    gutter.hide() for gutter in @editor.getGutters()
 
   attach: ->
     textEditorView = atom.views.getView @minimap.getTextEditor()
@@ -23,7 +24,7 @@ class CodeglanceView extends HTMLElement
     @editor.getLineHeightInPixels()
 
   resetGrammar: ->
-    grammar = switch atom.config.get 'minimap-codeglance.useSyntaxTheme'
+    grammar = switch atom.config.get 'minimap-codeglance.highlightCode'
       when true then @minimap.getTextEditor().getGrammar()
       when false then atom.grammars.grammarForScopeName 'text.plain.null-grammar'
     if grammar isnt @editor.getGrammar()
@@ -42,17 +43,18 @@ class CodeglanceView extends HTMLElement
 
   setPosition: (@position) ->
     @setAttribute 'data-position', @position
+    @style.transform = ''
 
   setMinimapPosition: (position) ->
     @setAttribute 'data-minimap-position', position
 
-  showGutter: ->
+  showLineNumbers: ->
     @removeAttribute 'data-hide-gutter'
-    gutter.show() for gutter in @editor.getGutters()
+    @editor.gutterWithName('line-number').show()
 
-  hideGutter: ->
+  hideLineNumbers: ->
     @setAttribute 'data-hide-gutter', ''
-    gutter.hide() for gutter in @editor.getGutters()
+    @editor.gutterWithName('line-number').hide()
 
   setMinimap: (@minimap) ->
     @attach()
