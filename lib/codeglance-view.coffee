@@ -62,11 +62,11 @@ class CodeglanceView extends HTMLElement
     @setAttribute 'data-minimap-position', position
 
   showGutter: ->
-    @setAttribute 'data-show-gutter', ''
+    @removeAttribute 'data-hide-gutter'
     gutter.show() for gutter in @editor.getGutters()
 
   hideGutter: ->
-    @removeAttribute 'data-show-gutter'
+    @setAttribute 'data-hide-gutter', ''
     gutter.hide() for gutter in @editor.getGutters()
 
   setMinimap: (@minimap) ->
@@ -79,8 +79,7 @@ class CodeglanceView extends HTMLElement
     @fixDisplayBufferHeight()
     offsetInLines = @pixelsToLines offset
     cursorLine = @getCursorLine offsetInLines
-    return @hide() unless cursorLine
-
+    return @hide() unless cursorLine?
     @highlightLine cursorLine
     @alignVertically offset
 
@@ -91,7 +90,7 @@ class CodeglanceView extends HTMLElement
   getCursorLine: (offsetInLines) ->
     firstVisibleLine = @minimap.getFirstVisibleScreenRow()
     cursorLine = firstVisibleLine + offsetInLines
-    return false if cursorLine > @minimap.getTextEditor().getLastScreenRow()
+    return if cursorLine > @minimap.getTextEditor().getLastScreenRow()
     cursorLine = @minimap.getTextEditor().bufferPositionForScreenPosition([cursorLine, 0]).row
     @editor.screenPositionForBufferPosition([cursorLine, 0]).row
 

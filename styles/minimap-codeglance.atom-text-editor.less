@@ -31,8 +31,9 @@ minimap-codeglance {
     border-bottom-width: 0;
   }
 
-  &[show-gutter] atom-text-editor {
-    padding-left: @component-padding;
+  &[data-hide-gutter] atom-text-editor::shadow .gutter-container {
+    width: @component-padding;
+    opacity: 0;
   }
 
   atom-text-editor::shadow {
