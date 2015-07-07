@@ -1,3 +1,6 @@
+## 0.1.4
+* Fix crash
+
 ## 0.1.3
 * Fix issue where the number of lines shown was incorrect after resizing the editor font
 
