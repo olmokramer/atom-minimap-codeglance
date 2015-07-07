@@ -20,12 +20,7 @@ class CodeglanceView extends HTMLElement
     @style.height = nLines * @getLineHeight() + 'px'
 
   getLineHeight: ->
-    @style.transform = 'translateY(100000px)'
-    @show()
-    lineHeight = @editorView.shadowRoot.querySelector('.line').clientHeight
-    @hide()
-    @style.transform = ''
-    lineHeight
+    lineHeight = @editor.getLineHeightInPixels()
 
   resetGrammar: ->
     grammar = switch atom.config.get 'minimap-codeglance.useSyntaxTheme'
@@ -68,10 +63,10 @@ class CodeglanceView extends HTMLElement
     gutter.hide() for gutter in @editor.getGutters()
 
   setMinimap: (@minimap) ->
-    @resetGrammar()
-    @resetText()
     @attach()
     @resize()
+    @resetGrammar()
+    @resetText()
 
   showLinesAtOffset: (offset) ->
     @fixDisplayBufferHeight()
