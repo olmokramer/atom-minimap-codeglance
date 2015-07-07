@@ -1,33 +1,34 @@
 'use strict'
+{Point} = require 'atom'
+
 class CodeglanceView extends HTMLElement
   createdCallback: ->
-    @editorView = document.createElement 'atom-text-editor'
-    @editor = @editorView.getModel()
-    @appendChild @editorView
-    gutter.hide() for gutter in @editor.getGutters()
+    @appendChild editorView = document.createElement 'atom-text-editor'
+    @codeglanceEditor = editorView.getModel()
+    gutter.hide() for gutter in @codeglanceEditor.getGutters()
 
   attach: ->
-    textEditorView = atom.views.getView @minimap.getTextEditor()
-    textEditorView.shadowRoot.appendChild this
+    @getTextEditorView().shadowRoot.appendChild this
 
   detach: ->
     @parentNode?.removeChild this
 
   resize: ->
     minimapView = atom.views.getView @minimap
-    @style.width = "calc(100% - #{getComputedStyle(minimapView).width})"
+    minimapWidth = getComputedStyle(minimapView).width
+    @style.width = "calc(100% - #{minimapWidth})"
 
     nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-    lineHeight = @editor.getLineHeightInPixels()
+    lineHeight = @codeglanceEditor.getLineHeightInPixels()
     @style.height = nLines * lineHeight + 'px'
 
-  resetGrammar: ->
-    @editor.setGrammar switch atom.config.get 'minimap-codeglance.highlightCode'
-      when true then @minimap.getTextEditor().getGrammar()
+  updateGrammar: ->
+    @codeglanceEditor.setGrammar switch atom.config.get 'minimap-codeglance.highlightCode'
+      when true then @getTextEditor().getGrammar()
       when false then atom.grammars.grammarForScopeName 'text.plain.null-grammar'
 
-  resetText: ->
-    @editor.setText @minimap.getTextEditor().getText()
+  updateText: ->
+    @codeglanceEditor.setText @getTextEditor().getText()
 
   show: (parentTextEditor) ->
     # hide until content is visible
@@ -46,54 +47,57 @@ class CodeglanceView extends HTMLElement
 
   showLineNumbers: ->
     @removeAttribute 'data-hide-gutter'
-    @editor.gutterWithName('line-number').show()
+    @codeglanceEditor.gutterWithName('line-number').show()
 
   hideLineNumbers: ->
     @setAttribute 'data-hide-gutter', ''
-    @editor.gutterWithName('line-number').hide()
+    @codeglanceEditor.gutterWithName('line-number').hide()
 
-  setMinimap: (@minimap) ->
+  setMinimap: (minimap) ->
+    return if @minimap is minimap
+    @minimap = minimap
     @attach()
     @resize()
-    @resetGrammar()
-    @resetText()
+    @updateGrammar()
+    @updateText()
 
-  showLinesAtOffset: (offsetInPixels) ->
+  getTextEditor: ->
+    @minimap.getTextEditor()
+
+  getTextEditorView: ->
+    atom.views.getView @getTextEditor()
+
+  showLinesAtOffset: (offset) ->
     @resize() if @clientHeight is 0
-    minimapPosition = @offsetToMinimapPosition offsetInPixels
-    sourceScreenPosition = @sourceScreenRowForMinimapPosition minimapPosition
-    ownScreenPosition = @ownScreenPositionForSourceScreenPosition sourceScreenPosition
-    @scrollToScreenPosition ownScreenPosition
-    @alignWithCursor offsetInPixels.y
+    sourceScreenPosition = @sourceScreenPositionForMinimapOffset offset
+    return @hide() if sourceScreenPosition.row > @getTextEditor().getLastScreenRow()
+    screenPosition = @screenPositionForSourceScreenPosition sourceScreenPosition
+    @scrollToScreenPosition screenPosition
+    @alignWithCursor offset.y
 
-  offsetToMinimapPosition: (offsetInPixels) ->
-    columnWidth = @minimap.charWidth
-    lineHeight = @minimap.charHeight + @minimap.interline
-    column: Math.floor offsetInPixels.x / columnWidth
-    row: Math.floor offsetInPixels.y / lineHeight
-
-  sourceScreenRowForMinimapPosition: (minimapPosition) ->
+  sourceScreenPositionForMinimapOffset: (offset) ->
     firstVisibleScreenRow = @minimap.getFirstVisibleScreenRow()
-    column: minimapPosition.column
-    row: minimapPosition.row + firstVisibleScreenRow
+    lineHeight = @minimap.charHeight + @minimap.interline
+    row = firstVisibleScreenRow + Math.floor offset.y / lineHeight
+    columnWidth = @minimap.charWidth
+    column = Math.floor offset.x / columnWidth
+    new Point row, column
 
-  ownScreenPositionForSourceScreenPosition: (sourceScreenPosition) ->
-    return null if sourceScreenPosition.row > @minimap.getTextEditor().getLastScreenRow()
-    bufferPosition = @minimap.getTextEditor().bufferPositionForScreenPosition sourceScreenPosition
-    @editor.screenPositionForBufferPosition bufferPosition
+  screenPositionForSourceScreenPosition: (sourceScreenPosition) ->
+    bufferPosition = @getTextEditor().bufferPositionForScreenPosition sourceScreenPosition
+    @codeglanceEditor.screenPositionForBufferPosition bufferPosition
 
   scrollToScreenPosition: (screenPosition) ->
-    return @hide() unless screenPosition?.row
-    @editor.setCursorScreenPosition screenPosition
+    @codeglanceEditor.setCursorScreenPosition screenPosition, autoscroll: true
     @show()
 
-  alignWithCursor: (cursorOffsetInPixels) ->
+  alignWithCursor: (offset) ->
     return if @position isnt 'cursor'
-    offsetInPixels = cursorOffsetInPixels - @clientHeight / 2
-    offsetInPixels = Math.max @getMinOffsetY(), offsetInPixels
-    offsetInPixels = Math.min @getMaxOffsetY(), offsetInPixels
+    offsetY = offset - @clientHeight / 2
+    offsetY = Math.max @getMinOffsetY(), offsetY
+    offsetY = Math.min @getMaxOffsetY(), offsetY
     requestAnimationFrame =>
-      @style.transform = "translateY(#{offsetInPixels}px)"
+      @style.transform = "translateY(#{offsetY}px)"
 
   getMinOffsetY: ->
     -parseInt getComputedStyle(this).borderTopWidth
@@ -104,8 +108,8 @@ class CodeglanceView extends HTMLElement
 
   destroy: ->
     @detach()
-    @editor.destroy()
-    [@editor, @editorView, @minimap] = []
+    @codeglanceEditor.destroy()
+    [@codeglanceEditor, @minimap] = []
 
 module.exports = document.registerElement 'minimap-codeglance',
   prototype: CodeglanceView.prototype
