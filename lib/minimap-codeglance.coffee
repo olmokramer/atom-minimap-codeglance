@@ -15,7 +15,7 @@ module.exports =
       order: 0
     numberOfLines:
       type: 'integer'
-      default: 6
+      default: 5
       minimum: 1
       order: 1
     showLineNumbers:
