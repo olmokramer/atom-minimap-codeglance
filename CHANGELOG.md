@@ -1,3 +1,7 @@
+## 0.1.1
+* Fix padding on the left side when the gutter is hidden
+* Fix issue where codeglance would be hidden on the first line
+
 ## 0.1.0
 * Setting to hover codeglance view next to cursor (default)
 * Better soft wrapping handling
