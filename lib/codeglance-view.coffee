@@ -24,18 +24,16 @@ class CodeglanceView extends HTMLElement
     @editor.getLineHeightInPixels()
 
   resetGrammar: ->
-    grammar = switch atom.config.get 'minimap-codeglance.highlightCode'
+    @editor.setGrammar switch atom.config.get 'minimap-codeglance.highlightCode'
       when true then @minimap.getTextEditor().getGrammar()
       when false then atom.grammars.grammarForScopeName 'text.plain.null-grammar'
-    if grammar isnt @editor.getGrammar()
-      @editor.setGrammar grammar
 
   resetText: ->
     @editor.setText @minimap.getTextEditor().getText()
 
   show: (parentTextEditor) ->
     # hide the border until content is visible
-    @style.borderColor = if @clientHeight is 0 then'transparent' else ''
+    @style.borderColor = if @clientHeight is 0 then 'transparent' else ''
     @style.display = ''
 
   hide: ->
@@ -62,44 +60,44 @@ class CodeglanceView extends HTMLElement
     @resetGrammar()
     @resetText()
 
-  showLinesAtOffset: (offset) ->
+  showLinesAtOffset: (offsetInPixels) ->
     @resize() if @clientHeight is 0
-    offsetInLines = @pixelsToLines offset
-    cursorLine = @getCursorLine offsetInLines
-    return @hide() unless cursorLine?
-    @scrollToLine cursorLine
-    @alignWithCursor offset
+    offsetInRows = @pixelsToRows offsetInPixels
+    sourceScreenRow = @sourceScreenRowForOffset offsetInRows
+    ownScreenRow = @ownScreenRowForSourceScreenRow sourceScreenRow
+    @scrollToScreenRow ownScreenRow
+    @alignWithCursor offsetInPixels
 
-  pixelsToLines: (px) ->
+  pixelsToRows: (px) ->
     lineHeight = @minimap.charHeight + @minimap.interline
     Math.floor px / lineHeight
 
-  getCursorLine: (offsetInLines) ->
-    firstVisibleLine = @minimap.getFirstVisibleScreenRow()
-    cursorLine = firstVisibleLine + offsetInLines
-    return if cursorLine > @minimap.getTextEditor().getLastScreenRow()
-    cursorLine = @minimap.getTextEditor().bufferPositionForScreenPosition([cursorLine, 0]).row
-    @editor.screenPositionForBufferPosition([cursorLine, 0]).row
+  sourceScreenRowForOffset: (offsetInRows) ->
+    firstVisibleScreenRow = @minimap.getFirstVisibleScreenRow()
+    sourceScreenRow = firstVisibleScreenRow + offsetInRows
 
-  scrollToLine: (line) ->
-    nLines = atom.config.get 'minimap-codeglance.numberOfLines'
-    firstLine = Math.max 0, line - Math.floor nLines / 2
+  ownScreenRowForSourceScreenRow: (sourceScreenRow) ->
+    return -1 if sourceScreenRow > @minimap.getTextEditor().getLastScreenRow()
+    bufferRow = @minimap.getTextEditor().bufferPositionForScreenPosition([sourceScreenRow, 0]).row
+    @editor.screenPositionForBufferPosition([bufferRow, 0]).row
+
+  scrollToScreenRow: (screenRow) ->
+    return @hide() if screenRow is -1
+    @editor.setCursorScreenPosition [screenRow, 0]
     @show()
-    @editor.setCursorScreenPosition [line, 0]
-    @editor.displayBuffer.setScrollTop firstLine * @getLineHeight()
 
-  alignWithCursor: (offset) ->
+  alignWithCursor: (cursorOffsetInPixels) ->
     return if @position isnt 'cursor'
-    translateY = offset - @clientHeight / 2
-    translateY = Math.max @getMinTranslateY(), translateY
-    translateY = Math.min @getMaxTranslateY(), translateY
+    offsetInPixels = cursorOffsetInPixels - @clientHeight / 2
+    offsetInPixels = Math.max @getMinOffsetY(), offsetInPixels
+    offsetInPixels = Math.min @getMaxOffsetY(), offsetInPixels
     requestAnimationFrame =>
-      @style.transform = "translateY(#{translateY}px)"
+      @style.transform = "translateY(#{offsetInPixels}px)"
 
-  getMinTranslateY: ->
+  getMinOffsetY: ->
     -parseInt getComputedStyle(this).borderTopWidth
 
-  getMaxTranslateY: ->
+  getMaxOffsetY: ->
     borderBottom = parseInt getComputedStyle(this).borderBottomWidth
     @parentNode.host.clientHeight - @clientHeight + borderBottom
 
