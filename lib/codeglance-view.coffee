@@ -20,7 +20,7 @@ class CodeglanceView extends HTMLElement
     @style.height = nLines * @getLineHeight() + 'px'
 
   getLineHeight: ->
-    lineHeight = @editor.getLineHeightInPixels()
+    @editor.getLineHeightInPixels()
 
   resetGrammar: ->
     grammar = switch atom.config.get 'minimap-codeglance.useSyntaxTheme'
@@ -33,20 +33,12 @@ class CodeglanceView extends HTMLElement
     @editor.setText @minimap.getTextEditor().getText()
 
   show: (parentTextEditor) ->
-    @style.display = 'block'
+    # hide the border until content is visible
+    @style.borderColor = if @clientHeight is 0 then'transparent' else ''
+    @style.display = ''
 
   hide: ->
     @style.display = 'none'
-    @style.transform = ''
-
-  fixDisplayBufferHeight: ->
-    # The height of the displayBuffer is much larger than
-    # the editor's actual height when the editor's height
-    # changes, which causes the programmatical scrolling to
-    # fail. Resetting the height of the bufferseems to fix
-    # this.
-    displayBufferHeight = atom.config.get('minimap-codeglance.numberOfLines') * @getLineHeight()
-    @editor.displayBuffer.setHeight displayBufferHeight
 
   setPosition: (@position) ->
     @setAttribute 'data-position', @position
@@ -69,11 +61,11 @@ class CodeglanceView extends HTMLElement
     @resetText()
 
   showLinesAtOffset: (offset) ->
-    @fixDisplayBufferHeight()
+    @resize() if @clientHeight is 0
     offsetInLines = @pixelsToLines offset
     cursorLine = @getCursorLine offsetInLines
     return @hide() unless cursorLine?
-    @highlightLine cursorLine
+    @scrollToLine cursorLine
     @alignWithCursor offset
 
   pixelsToLines: (px) ->
@@ -87,12 +79,12 @@ class CodeglanceView extends HTMLElement
     cursorLine = @minimap.getTextEditor().bufferPositionForScreenPosition([cursorLine, 0]).row
     @editor.screenPositionForBufferPosition([cursorLine, 0]).row
 
-  highlightLine: (line) ->
+  scrollToLine: (line) ->
     nLines = atom.config.get 'minimap-codeglance.numberOfLines'
     firstLine = Math.max 0, line - Math.floor nLines / 2
-    @editor.setCursorScreenPosition [line, 0]
-    @editor.displayBuffer.setScrollTop firstLine * @editor.getLineHeightInPixels()
     @show()
+    @editor.setCursorScreenPosition [line, 0]
+    @editor.displayBuffer.setScrollTop firstLine * @getLineHeight()
 
   alignWithCursor: (offset) ->
     return if @position isnt 'cursor'
