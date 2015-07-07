@@ -63,14 +63,24 @@ module.exports =
     minimapView = atom.views.getView minimap
     @disposables.add disposable = new CompositeDisposable()
 
+    isDragging = false;
+
     disposable.add addEventListener minimapView, 'mouseenter', =>
       @codeglanceView.setMinimap minimap
 
     disposable.add addEventListener minimapView, 'mousemove', ({offsetY}) =>
-      @codeglanceView.showLinesAtOffset offsetY
+      @codeglanceView.showLinesAtOffset offsetY unless isDragging
 
     disposable.add addEventListener minimapView, 'mouseleave', =>
+      isDragging = false
       @codeglanceView.hide()
+
+    disposable.add addEventListener minimapView, 'mousedown', =>
+      isDragging = true
+      @codeglanceView.hide()
+
+    disposable.add addEventListener minimapView, 'mouseup', ->
+      isDragging = false
 
     @disposables.add minimap.onDidDestroy =>
       @disposables.remove disposable
