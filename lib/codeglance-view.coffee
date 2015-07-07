@@ -3,7 +3,6 @@ class CodeglanceView extends HTMLElement
   createdCallback: ->
     @editorView = document.createElement 'atom-text-editor'
     @editor = @editorView.getModel()
-    # @editor.setSoftWrapped false
     @appendChild @editorView
 
   attach: ->
@@ -13,9 +12,20 @@ class CodeglanceView extends HTMLElement
   detach: ->
     @parentNode?.removeChild this
 
-  recalculateWidth: ->
+  resize: ->
     minimapView = atom.views.getView @minimap
     @style.width = "calc(100% - #{getComputedStyle(minimapView).width})"
+
+    nLines = atom.config.get 'minimap-codeglance.numberOfLines'
+    @style.height = nLines * @getLineHeight() + 'px'
+
+  getLineHeight: ->
+    @style.transform = 'translateY(100000px)'
+    @show()
+    lineHeight = @editorView.shadowRoot.querySelector('.line').clientHeight
+    @hide()
+    @style.transform = ''
+    lineHeight
 
   resetGrammar: ->
     grammar = switch atom.config.get 'minimap-codeglance.useSyntaxTheme'
@@ -33,18 +43,6 @@ class CodeglanceView extends HTMLElement
   hide: ->
     @style.display = 'none'
     @style.transform = ''
-
-  setHeight: (nLines) ->
-    @style.height = nLines * @getLineHeight() + 'px'
-
-  getLineHeight: ->
-    lineHeight = @editor.getLineHeightInPixels() or
-      @minimap?.getTextEditor().getLineHeightInPixels()
-    return lineHeight if lineHeight
-    for textEditor in atom.workspace.getTextEditors()
-      lineHeight = textEditor.getLineHeightInPixels()
-      return lineHeight if lineHeight
-    atom.config.get('editor.fontSize') * atom.config.get('editor.lineHeight')
 
   fixDisplayBufferHeight: ->
     # The height of the displayBuffer is much larger than
@@ -73,7 +71,7 @@ class CodeglanceView extends HTMLElement
     @resetGrammar()
     @resetText()
     @attach()
-    @recalculateWidth()
+    @resize()
 
   showLinesAtOffset: (offset) ->
     @fixDisplayBufferHeight()
@@ -81,7 +79,7 @@ class CodeglanceView extends HTMLElement
     cursorLine = @getCursorLine offsetInLines
     return @hide() unless cursorLine?
     @highlightLine cursorLine
-    @alignVertically offset
+    @alignWithCursor offset
 
   pixelsToLines: (px) ->
     lineHeight = @minimap.charHeight + @minimap.interline
@@ -101,7 +99,7 @@ class CodeglanceView extends HTMLElement
     @editor.displayBuffer.setScrollTop firstLine * @editor.getLineHeightInPixels()
     @show()
 
-  alignVertically: (offset) ->
+  alignWithCursor: (offset) ->
     return if @position isnt 'cursor'
     translateY = offset - @clientHeight / 2
     translateY = Math.max @getMinTranslateY(), translateY

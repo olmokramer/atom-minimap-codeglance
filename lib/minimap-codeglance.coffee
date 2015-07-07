@@ -47,9 +47,6 @@ module.exports =
     @disposables.add @minimap.observeMinimaps (minimap) =>
       @setupEvents minimap
 
-    @disposables.add atom.config.observe 'minimap-codeglance.numberOfLines', (nLines) =>
-      @codeglanceView.setHeight nLines
-
     @disposables.add atom.config.observe 'minimap-codeglance.codeglancePosition', (position) =>
       @codeglanceView.setPosition position
 
@@ -92,6 +89,7 @@ module.exports =
     @active = false
 
     @disposables.dispose()
+    @disposables = null
 
   createView: ->
     @codeglanceView ?= new CodeglanceView()
