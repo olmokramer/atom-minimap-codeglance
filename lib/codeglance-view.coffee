@@ -32,8 +32,8 @@ class CodeglanceView extends HTMLElement
     @editor.setText @minimap.getTextEditor().getText()
 
   show: (parentTextEditor) ->
-    # hide the border until content is visible
-    @style.borderColor = if @clientHeight is 0 then 'transparent' else ''
+    # hide until content is visible
+    @style.opacity = if @clientHeight is 0 then 0 else ''
     @style.display = ''
 
   hide: ->
