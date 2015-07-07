@@ -36,6 +36,10 @@ minimap-codeglance {
   &[data-hide-gutter] atom-text-editor::shadow .gutter-container {
     width: @component-padding;
     opacity: 0;
+
+    [data-typewriter="true"]::shadow & {
+      width: 0;
+    }
   }
 
   atom-text-editor::shadow {
