@@ -1,3 +1,6 @@
+## 0.1.2
+* Styling fixes and tweaks
+
 ## 0.1.1
 * Fix padding on the left side when the gutter is hidden
 * Fix issue where codeglance would be hidden on the first line
