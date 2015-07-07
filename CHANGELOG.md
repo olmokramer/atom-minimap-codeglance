@@ -1,4 +1,5 @@
 # 0.1.5
+* Better soft wrap support
 * Fix issue where codeglance would sometimes show only the first lines of the editor
 * Always hide non-line-number gutters
 * Rename setting `showGutter` to `showLineNumbers`
