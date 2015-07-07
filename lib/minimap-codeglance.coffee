@@ -73,15 +73,16 @@ module.exports =
       @codeglanceView.showLinesAtOffset offsetY unless isDragging
 
     disposable.add addEventListener minimapView, 'mouseleave', =>
-      isDragging = false
       @codeglanceView.hide()
 
     disposable.add addEventListener minimapView, 'mousedown', =>
       isDragging = true
       @codeglanceView.hide()
 
-    disposable.add addEventListener minimapView, 'mouseup', ->
-      isDragging = false
+      upDisposable = addEventListener document.body, 'mouseup', ->
+        isDragging = false
+        upDisposable.dispose()
+        upDisposable = null
 
     @disposables.add minimap.onDidDestroy =>
       @disposables.remove disposable
