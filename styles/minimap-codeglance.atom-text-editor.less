@@ -3,6 +3,7 @@
 
 minimap-codeglance {
   position: absolute;
+  top: 0;
   overflow: hidden;
   box-sizing: content-box;
   background-color: @syntax-background-color;
@@ -17,20 +18,6 @@ minimap-codeglance {
 
   &[data-minimap-position="right"] {
     left: 0;
-  }
-
-  &[data-position="top"] {
-    top: 0;
-    border-top-width: 0;
-  }
-
-  &[data-position="cursor"] {
-    top: 0;
-  }
-
-  &[data-position="bottom"] {
-    bottom: 0;
-    border-bottom-width: 0;
   }
 
   atom-text-editor {
