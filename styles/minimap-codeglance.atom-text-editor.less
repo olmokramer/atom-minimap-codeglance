@@ -33,19 +33,19 @@ minimap-codeglance {
     border-bottom-width: 0;
   }
 
-  &[data-hide-gutter] atom-text-editor::shadow .gutter-container {
-    width: 1em;
-    opacity: 0;
-
-    [data-typewriter="true"]::shadow & {
-      width: 0;
-    }
-  }
-
   atom-text-editor {
     position: absolute;
     height: 100%;
     width: 100%;
+    padding-left: 1em;
+  }
+
+  &[data-hide-gutter] atom-text-editor {
+    padding-left: 2em;
+
+    &::shadow .gutter-container {
+      display: none!important;
+    }
   }
 
   atom-text-editor::shadow {
