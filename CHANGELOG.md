@@ -1,3 +1,6 @@
+## 0.1.8
+* Fix crash on minimap plugin deactivation
+
 ## 0.1.7
 * Fix issue where text was red"
 
