@@ -1,6 +1,6 @@
 {
   "name": "minimap-codeglance",
-  "main": "./lib",
+  "main": "./lib/main.js",
   "version": "0.1.5",
   "description": "Codeglance like functionality for Atom",
   "repository": "https://github.com/olmokramer/atom-minimap-codeglance",
