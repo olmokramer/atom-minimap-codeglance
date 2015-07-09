@@ -1,3 +1,6 @@
+## 0.1.7
+* Fix issue where text was red"
+
 ## 0.1.6
 * Reflect soft wrap state in the codeglance view
 
