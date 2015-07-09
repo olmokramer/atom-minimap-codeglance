@@ -1,3 +1,6 @@
+## 0.1.6
+* Reflect soft wrap state in the codeglance view
+
 ## 0.1.5
 * Better soft wrap support
 * Fix issue where codeglance would sometimes show only the first lines of the editor
