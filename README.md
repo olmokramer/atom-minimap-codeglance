@@ -7,3 +7,5 @@ Codeglance for Atom as a [minimap](https://atom.io/packages/minimap) plugin. Sho
 # todo
 
 - [ ] Decorations
+- [ ] Set the width of the codeglance view the same as the editor
+- [ ] Soft wrapping options
