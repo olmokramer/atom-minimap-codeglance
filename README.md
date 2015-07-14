@@ -7,3 +7,4 @@ Codeglance for Atom as a [minimap](https://atom.io/packages/minimap) plugin. Sho
 # todo
 
 - [ ] Decorations
+- [ ] Better support for huge files
