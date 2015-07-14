@@ -1,3 +1,7 @@
+## 0.2.0
+* Update styling
+* Fix issue where the height of the editor was off by a few pixels
+
 ## 0.1.9
 * Add `softWrap` setting that controls soft wrapping in the codeglance view
 
