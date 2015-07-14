@@ -1,3 +1,6 @@
+## 0.1.9
+* Add `softWrap` setting that controls soft wrapping in the codeglance view
+
 ## 0.1.8
 * Fix crash on minimap plugin deactivation
 
