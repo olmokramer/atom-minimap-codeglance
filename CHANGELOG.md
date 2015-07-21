@@ -1,3 +1,6 @@
+## 0.2.1
+* Disable codeglance while selecting code
+
 ## 0.2.0
 * Update styling
 * Fix issue where the height of the editor was off by a few pixels
