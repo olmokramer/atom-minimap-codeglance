@@ -17,5 +17,5 @@
   },
   "dependencies": {
     "object-assign-shim": "^1.0.0"
-  },
+  }
 }
