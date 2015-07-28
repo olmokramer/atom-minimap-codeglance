@@ -1,3 +1,6 @@
+## 0.2.3
+* Fix issue where sometimes text wasn't visible
+
 ## 0.2.2
 * :racehorse: Don't reset text buffer when it is not needed to prevent unnecessary tokenisation
 * :bug: Fix issue where disabling the minimap package could cause the text editor contents to be removed from the DOM
