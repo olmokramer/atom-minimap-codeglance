@@ -1,6 +1,7 @@
 ## 0.2.2
 * :racehorse: Don't reset text buffer when it is not needed to prevent unnecessary tokenisation
 * :bug: Fix issue where disabling the minimap package could cause the text editor contents to be removed from the DOM
+* Fix where text was blurry because the transform values weren't rounded (#7)
 
 ## 0.2.1
 * Disable codeglance while selecting code
