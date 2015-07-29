@@ -10,18 +10,28 @@ minimap-codeglance {
   border-radius: @component-border-radius;
   box-shadow: 0 0 6px rgba(0, 0, 0, .2);
 
-  &[data-hide-gutter] {
-    padding-left: 2em;
+  // required because hide() uses opacity
+  // instead of display, but we don't want
+  // to block the text in the editor
+  pointer-events: none;
 
-    &::shadow .gutter-container {
-      display: none!important;
-    }
-  }
+  // allow users to transition: opacity
+  opacity: 1;
 
-  &::shadow {
-    .cursor,
-    ::-webkit-scrollbar {
-      display: none;
+  atom-text-editor {
+    // required to make the editor scroll
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    &::shadow {
+      // hide the cursor and the scrollbar
+      // because they are irrelevant in
+      // the codeglance view
+      .cursor,
+      ::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 }
