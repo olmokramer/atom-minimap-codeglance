@@ -1,3 +1,7 @@
+## 0.3.0
+* Fix issue where text in the codeglance view would not show
+* Align text editor when `showLineNumbers` is disabled
+
 ## 0.2.4
 * Fix crash (#8)
 
