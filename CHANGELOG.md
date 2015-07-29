@@ -1,3 +1,7 @@
+## 0.4.0
+* Show text editor decorations in the codeglance view
+* Add `decorations` setting that toggles decorations
+
 ## 0.3.0
 * Fix issue where text in the codeglance view would not show
 * Align text editor when `showLineNumbers` is disabled
