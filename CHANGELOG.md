@@ -1,3 +1,6 @@
+## 0.2.4
+* Fix crash (#8)
+
 ## 0.2.3
 * Fix issue where sometimes text wasn't visible
 
