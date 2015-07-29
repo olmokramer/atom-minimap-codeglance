@@ -22,5 +22,4 @@ atom-text-editor::shadow minimap-codeglance {
 
 # todo
 
-- [ ] Decorations
 - [ ] Better support for huge files
