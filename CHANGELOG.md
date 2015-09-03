@@ -1,3 +1,7 @@
+## 0.4.1
+* Fix an exception when closing a text editor while its codeglance was showing (#11)
+* Hide codeglance when closing a text editor (#11)
+
 ## 0.4.0
 * Show text editor decorations in the codeglance view
 * Add `decorations` setting that toggles decorations
