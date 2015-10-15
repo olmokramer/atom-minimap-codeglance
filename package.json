@@ -17,5 +17,9 @@
   },
   "dependencies": {
     "object-assign-shim": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^4.1.3",
+    "eslint": "^1.6.0"
   }
 }
