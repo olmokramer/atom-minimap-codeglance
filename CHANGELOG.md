@@ -1,3 +1,6 @@
+## 0.4.3
+* Fix an issue that was caused by changed variable names in minimap (#15, #16)
+
 ## 0.4.2
 * Fix an exception when closing a text editor when codeglance hasn't been activated yet (#8)
 
