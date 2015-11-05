@@ -1,3 +1,6 @@
+## 0.4.4
+* Fix issue where line numbers wouldn't show the first time codeglance was shown
+
 ## 0.4.3
 * Fix an issue that was caused by changed variable names in minimap (#15, #16)
 
