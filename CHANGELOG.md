@@ -1,3 +1,7 @@
+## 0.4.5
+* Fix issue during package activation in Atom v1.1.0 (#17, #18, #20)
+* Fix compatibility issue with typewriter package
+
 ## 0.4.4
 * Fix issue where line numbers wouldn't show the first time codeglance was shown
 
