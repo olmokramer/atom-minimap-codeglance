@@ -26,9 +26,11 @@ minimap-codeglance {
     // hide the cursor and the scrollbar
     // because they are irrelevant in
     // the codeglance view
-    .cursor,
-    ::-webkit-scrollbar {
-      display: none;
+    &.editor {
+      .cursor,
+      ::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 }
