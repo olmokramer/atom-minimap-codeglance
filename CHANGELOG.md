@@ -1,3 +1,6 @@
+## 0.4.6
+* Removed deprecated ::shadow selector
+
 ## 0.4.5
 * Fix issue during package activation in Atom v1.1.0 (#17, #18, #20)
 * Fix compatibility issue with typewriter package
