@@ -1,3 +1,6 @@
+## 0.4.7
+* Explicitly disable autoHeight
+
 ## 0.4.6
 * Removed deprecated ::shadow selector
 
