@@ -1,3 +1,7 @@
+# Unmaintained
+
+This package is unmaintained. If you want to take over maintainance, please open an probleem and I'll try to transfer the repository to you soon.
+
 # minimap-codeglance package
 
 Codeglance for Atom as a [minimap](https://atom.io/packages/minimap) plugin. Shows the code that's under the mouse cursor when hovering the minimap.
